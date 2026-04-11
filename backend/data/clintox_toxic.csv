@@ -1,0 +1,11 @@
+smiles,CT_TOX,toxicity_reason
+C([C@@H]1[C@@H]([C@@H]([C@@H](O1)OC2([C@@H]([C@@H]([C@H](O2)CO)O)O)CO)O)O)O,1,Sucrose analog - gastrointestinal toxicity at high doses
+ClC(Cl)(Cl)Cl,1,Carbon tetrachloride - severe hepatotoxicity and nephrotoxicity
+CC(=O)Oc1ccccc1C(=O)O,1,Aspirin overdose - GI bleeding and Reye syndrome
+O=[N+]([O-])c1ccc(o1)[N+](=O)[O-],1,Dinitrofuroxan - mutagenic and carcinogenic nitro compound
+CC12CCC3C(C1CCC2O)CCC4=CC(=O)CCC34C,1,Testosterone derivative - endocrine disruption hepatotoxicity
+c1ccc(cc1)[N+](=O)[O-],1,Nitrobenzene - methemoglobinemia and liver damage
+CC(C)Cc1ccc(cc1)C(C)C(=O)O,1,Ibuprofen overdose - renal toxicity and GI perforation
+Clc1ccc(cc1)c2ccc(Cl)cc2,1,4-4-Dichlorobiphenyl - PCB persistent organic pollutant
+O=C(O)c1ccccc1O,1,Salicylic acid high dose - metabolic acidosis
+CCOC(=O)c1ccccc1N,1,Benzocaine - methemoglobinemia risk

@@ -1,0 +1,13 @@
+smiles,pIC50,binding_label,notes
+Fc1cc(cc(F)c1)CC(NC(=O)C(N)CC(O)=O)C(O)C(CC1CC1)NC(=O)c1cc(ccc1)C(F)(F)F,8.2,active,Strong BACE1 inhibitor - aminohydantoin scaffold
+O=C(NC(Cc1ccccc1)C(O)C(NC(=O)c1cc(N)ccc1)CC1CCCCC1)C1CC1,7.9,active,Hydroxyethylamine transition-state mimic
+Clc1ccc(cc1)CC(NC(=O)c1cnc2ccccc2n1)C(O)C(NC(=O)OC(C)(C)C)Cc1ccccc1,7.5,active,Quinazoline BACE1 inhibitor
+FC(F)(F)c1cc(ccc1)C(=O)NC(Cc1ccccc1)C(O)CN1CCCC1=O,6.8,moderate,Moderate affinity fluorinated compound
+O=C(O)c1ccc(cc1)N,5.2,weak,Low affinity aromatic amine
+c1ccc(cc1)C(=O)Nc2ccccc2,4.1,inactive,Minimal BACE1 interaction
+CC(C)(C)c1ccc(cc1)O,3.5,inactive,No significant binding
+Oc1ccc(cc1)c2ccccc2,3.8,inactive,Biphenol - no BACE1 activity
+FC(F)(F)c1ccc(cc1)C(=O)NC(CC2CCCCC2)C(O)C(NC(=O)c2ncc(F)cc2)Cc2ccccc2,8.5,active,Potent BACE1 inhibitor difluoropyridine
+CC(=O)NC(Cc1ccc(O)cc1)C(O)C(NC(=O)c1cc(C)on1)CC1CCCCC1,7.1,active,Isoxazole-based BACE1 inhibitor
+O=C1NC(=O)c2ccccc21,4.0,inactive,Isatin - no BACE1 binding
+Fc1cc(cc(F)c1)CC(NC(=O)C)C(O)C(NC(=O)c1cc(OC)ccc1)CC(C)C,6.5,moderate,Moderate BACE1 inhibitor methoxy scaffold
