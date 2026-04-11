@@ -134,4 +134,16 @@ Several free tools exist in the drug repurposing space. Here's why PharmaSynapse
 | **Pharos** ([pharos.nih.gov](https://pharos.nih.gov/)) | NIH target knowledge browser | Target-centric, not drug-repurposing-centric. No failed trial search, no safety pipeline, no PDF export. Complementary data source, not a workflow tool |
 | **OpenFDA** ([open.fda.gov](https://open.fda.gov/)) | Raw adverse event search API | API only — no disease-to-drug pipeline, no scoring, no UI. PharmaSynapse integrates FAERS data as one input to a multi-agent pipeline |
 
+| **Hetionet** ([het.io](https://het.io)) | Network medicine knowledge graph linking genes, diseases, compounds, and anatomies via 24 relationship types | Static pre-computed graph — powerful for exploring known relationships, but doesn't query live clinical trial data, doesn't provide real-time safety analysis from FDA FAERS, and doesn't score candidates for repurposing potential. Complementary data source, not a discovery workflow |
+| **OpenPrescribing** ([openprescribing.net](https://openprescribing.net/)) | NHS prescribing data analytics (UK) | Focused on prescribing patterns, not drug repurposing. Useful for understanding real-world drug usage but doesn't connect diseases to targets, doesn't search failed trials, and has no scoring system. Geography-limited (UK NHS data only) |
+
+### Addressing Institutional Access
+
+Some well-resourced academic institutions have **institutional Cortellis or Pathway Studio licenses**, which reduces the addressable market among top-tier research universities. However:
+
+1. **Access inequality persists**: Institutional licenses typically cover 5-20 seats. A university with 200 biomedical researchers still has the majority without access. Junior researchers, visiting scholars, and students are often excluded from seat allocations.
+2. **Global majority lacks access**: Institutions in low- and middle-income countries — where rare disease burden is highest — rarely have institutional licenses. PharmaSynapse serves this underserved global majority.
+3. **Different workflow**: Even researchers with Cortellis access benefit from PharmaSynapse's automated pipeline that generates a complete analysis in 60 seconds. Cortellis requires manual query construction across multiple modules.
+4. **Open science alignment**: Institutional licenses create knowledge silos. PharmaSynapse's open-source approach means any analysis can be reproduced and verified by anyone.
+
 **The core differentiator**: None of these tools provide an end-to-end automated pipeline that starts from a disease name and produces ranked, scored, safety-checked drug candidates with literature evidence — in a single interface — for free. PharmaSynapse is a *workflow tool* that chains these data sources together, not just another database browser.

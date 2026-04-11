@@ -10,6 +10,7 @@ PharmaSynapse follows these UX principles:
 4. **Source Transparency**: Every claim links to its database
 5. **Beautiful Minimalism**: Clean white theme, purposeful animations, zero clutter
 6. **Actionable Exports**: PDF reports formatted for grant proposals
+7. **Accessible by Default**: All modals implement ARIA roles, focus traps, and keyboard navigation (Escape to close, Tab cycling within modal boundaries)
 
 ---
 

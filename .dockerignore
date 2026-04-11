@@ -1,0 +1,51 @@
+# Version control
+.git
+.gitignore
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# IDE and editor files
+.vscode/
+.idea/
+.cursor/
+*.swp
+*.swo
+
+# Python artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# Test files (not needed in production image)
+backend/tests/
+backend/data/*.csv
+
+# Virtual environments
+venv/
+.venv/
+
+# Environment files (secrets)
+.env
+backend/.env
+.env.example
+
+# Node artifacts
+node_modules/
+frontend/node_modules/
+frontend/.next/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# CI/CD
+.github/
+
+# Misc
+*.log

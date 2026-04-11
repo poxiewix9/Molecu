@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { X, Shield, ShieldAlert, ShieldX, BookOpen, type LucideIcon } from "lucide-react";
 import type { DrugCandidate, SafetyAssessment, EvidenceSummary } from "@/lib/diseaseTypes";
@@ -39,6 +40,32 @@ export default function CompareView({ drugs, safetyMap, evidenceMap, onClose }: 
   const vA = saA ? VERDICT_CFG[saA.verdict] : null;
   const vB = saB ? VERDICT_CFG[saB.verdict] : null;
 
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    closeRef.current?.focus();
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") { onClose(); return; }
+      if (e.key !== "Tab" || !dialogRef.current) return;
+
+      const focusable = dialogRef.current.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault(); last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault(); first.focus();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -46,16 +73,23 @@ export default function CompareView({ drugs, safetyMap, evidenceMap, onClose }: 
       exit={{ opacity: 0 }}
       className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/40 p-6 backdrop-blur-sm"
       onClick={onClose}
+      role="presentation"
     >
       <motion.div
+        ref={dialogRef}
         initial={{ y: 30, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: 30, opacity: 0 }}
         className="relative my-8 w-full max-w-3xl rounded-2xl border border-border bg-card p-8 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-label={`Compare ${a.drug_name} vs ${b.drug_name}`}
       >
         <button
+          ref={closeRef}
           onClick={onClose}
+          aria-label="Close comparison"
           className="absolute right-4 top-4 rounded-lg p-1 text-muted hover:bg-subtle hover:text-foreground"
         >
           <X size={18} />

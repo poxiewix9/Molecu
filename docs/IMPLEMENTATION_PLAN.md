@@ -70,7 +70,13 @@
 | M5.9 | Async DeBERTa inference via ThreadPoolExecutor | Vedanth | 2h | ✅ Complete |
 | M5.10 | GitHub Actions CI/CD pipeline (pytest + next build) | Vedanth | 2h | ✅ Complete |
 | M5.11 | API caching layer (Redis) | — | — | 📋 Planned |
-| M5.12 | Rate limiting middleware | — | — | 📋 Planned |
+| M5.12 | Rate limiting middleware (token-bucket) | Keshav | 2h | ✅ Complete |
+| M5.13 | Frontend test suite (Vitest: sessions, type contracts) | Keshav | 3h | ✅ Complete |
+| M5.14 | API contract tests (Open Targets, rate limiter) | Keshav | 2h | ✅ Complete |
+| M5.15 | LangGraph orchestrator tests | Keshav | 2h | ✅ Complete |
+| M5.16 | Accessibility: ARIA roles, focus traps, keyboard nav on modals | Keshav | 1h | ✅ Complete |
+| M5.17 | .dockerignore for production image hygiene | Keshav | 0.5h | ✅ Complete |
+| M5.18 | Empirical validation protocol (VALIDATION.md) | Keshav | 2h | ✅ Complete |
 
 ---
 
@@ -117,7 +123,7 @@
 | Non-drug ClinicalTrials results | Medium | Length filter + intervention type filter removes procedures and gene names |
 | ChEMBL returning IDs not names | Low | `_resolve_molecule_name()` queries molecule endpoint for human-readable names |
 | DeBERTa NLI latency | Medium | Inference now runs in `ThreadPoolExecutor` (2 workers) — does not block the async event loop. Latency is ~2-4s per pair, acceptable for 5-8 candidates |
-| Open Targets schema changes | Low | GraphQL queries pin to v4 API. Breaking changes monitored via version header |
+| Open Targets schema changes | Low | GraphQL queries pin to v4 API. **Automated API contract tests** (`test_api_contracts.py`) validate expected response shapes in CI — breaking changes caught before users notice |
 | FAERS drug name normalization | Medium | Drug names in FAERS are inconsistent (brand vs generic). We pass the canonical name from ClinicalTrials.gov/ChEMBL, accepting partial miss rate |
 | Gemini API key exhaustion | Medium | Startup warning if key is missing. Pipeline degrades gracefully — agents return raw data without LLM summaries. Free tier quota is ~15 RPM / 1M tokens/day |
 | localStorage quota (5MB) | Low | Max 20 sessions stored. Each session ~50-100KB. Oldest sessions could be pruned. UI warns if save fails |
@@ -144,3 +150,45 @@
 | Keshav Singh | Frontend & AI integration | Next.js UI, 3D visualization, LLM integration, research workbench features |
 
 **Division of labor**: Backend pipeline (agents, services, scoring) and frontend (Dashboard, components, PDF/3D) were developed in parallel. Documentation and testing were collaborative efforts. All architectural decisions were made jointly.
+
+### Cross-Training & Knowledge Transfer
+
+To reduce single-point-of-failure risk (bus factor of 1 per domain):
+
+| Domain | Primary Owner | Cross-Trained On |
+|--------|--------------|------------------|
+| Backend agents + scoring | Vedanth | Keshav reviewed all agent code, wrote LLM integration in drug_hunter + evidence_agent |
+| Frontend components | Keshav | Vedanth reviewed Dashboard.tsx, contributed to useEventStream hook design |
+| DeBERTa NLI + contradiction engine | Vedanth | Both can modify contradiction_engine.py and the async ThreadPoolExecutor pattern |
+| 3D visualization (Three.js/3Dmol) | Keshav | Vedanth reviewed MoleculeEditor.tsx; PubChem SDF parsing is well-documented |
+| CI/CD + Docker | Vedanth | Both can modify docker-compose.yml and ci.yml; Keshav owns Dockerfile.frontend |
+| Documentation | Collaborative | Both authors on all 12 docs |
+
+**Demo-day redundancy**: Either team member can demo the full system, explain the architecture, and answer technical questions about any component. Code walkthroughs were conducted in both directions during Phase 5.
+
+---
+
+## Prototype → Production Timeline
+
+| Phase | Timeline | Milestone | Status |
+|-------|----------|-----------|--------|
+| **Hackathon** | Week 1-3 | Working prototype with 5 agents, SSE, 78 tests, Docker | ✅ Complete |
+| **Validation** | Month 1 | Run validation protocol (sildenafil→PAH, thalidomide→MM) — document in VALIDATION.md | ✅ Complete |
+| **Alpha** | Month 2-3 | Redis caching layer, rate limiting, basic monitoring (Prometheus metrics) | 📋 Planned |
+| **Beta** | Month 4-6 | Deploy to Cloud Run, add API key auth for enterprise tier, WebSocket option for lower latency | 📋 Planned |
+| **Public Launch** | Month 7-9 | Custom domain, uptime monitoring, user feedback loop, first institutional partnerships | 📋 Planned |
+| **Scale** | Month 10-12 | Celery worker pool, horizontal scaling, molecular docking integration, community contributions | 📋 Planned |
+
+---
+
+## Long-Term Defensibility & Moat
+
+The core pipeline's orchestration (6-API chain) could be replicated by a motivated team. Our defensible advantages at 6+ months:
+
+| Moat Layer | Description | Timeline |
+|------------|-------------|----------|
+| **Validated Scoring Calibration** | Benchmark against 20+ known successful repurposings; calibrate weights to maximize Recall@5. No competitor has a publicly validated scoring formula for drug repurposing. | Month 2-3 |
+| **Community Disease Annotations** | Crowdsourced researcher annotations (notes, star ratings) on drug-disease pairs. Aggregated community signal becomes a proprietary quality layer. | Month 4-6 |
+| **Fine-Tuned Domain Models** | Train a lightweight classifier on PharmaSynapse output + researcher feedback to predict which candidates researchers find most promising. | Month 6-9 |
+| **Institutional Partnerships** | Embed in rare disease foundation workflows. Once researchers build sessions and reports, switching costs are high. | Month 7-12 |
+| **Open-Source Community** | MIT license attracts contributors who add new agents (UniProt, STRING, DrugBank), expanding the pipeline's coverage faster than a closed team could. | Ongoing |

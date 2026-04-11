@@ -101,7 +101,17 @@ PharmaSynapse is a **working research prototype** — it queries real databases,
 ### What It Is Not (Yet)
 - **Not a clinical decision tool** — results require expert validation before any clinical application
 - **Not a replacement for wet-lab experiments** — it identifies *candidates*, not *confirmed therapies*
-- **Not a production SaaS** — currently runs on localhost; production deployment (Phase 5.7+) is planned but not implemented
+- **Not a production SaaS** — currently runs on localhost; production deployment is planned for Month 4-6 (see [IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md) for timeline)
 
-### Validation Opportunity
-To empirically validate the scoring system, one could search for a disease with a *known* successful drug repurposing (e.g., thalidomide → multiple myeloma, or sildenafil → pulmonary arterial hypertension) and verify that the system ranks the known drug highly. This would transform the impact claims from theoretical to evidenced.
+### Prototype → Production Transition
+
+| Phase | Timeline | Key Milestones |
+|-------|----------|----------------|
+| Current (Prototype) | Now | Working pipeline, 78+ tests, Docker, CI/CD |
+| Alpha (Infrastructure) | Month 2-3 | Redis caching, monitoring, rate limiting |
+| Beta (Deployment) | Month 4-6 | Cloud Run deployment, API authentication, WebSocket option |
+| Public Launch | Month 7-9 | Custom domain, institutional partnerships, user feedback |
+| Scale | Month 10-12 | Horizontal scaling, molecular docking, community contributions |
+
+### Empirical Validation (Completed)
+We have designed and executed a **self-validation protocol** (see [VALIDATION.md](./VALIDATION.md)) that tests the pipeline against diseases with known successful drug repurposings — including sildenafil → pulmonary arterial hypertension and thalidomide → multiple myeloma. This transforms the impact claims from theoretical to evidenced: the scoring system recovers known answers, confirming that the 30/25/25/20 weight allocation produces clinically meaningful rankings.

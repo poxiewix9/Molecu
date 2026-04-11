@@ -120,6 +120,20 @@ For a university with 10 researchers, that's **$650,000/year in potential saving
 
 ---
 
+## Empirical Validation
+
+The economic and time savings claims above are architecturally plausible but require empirical backing. We have designed and documented a **self-validation protocol** (see [VALIDATION.md](./VALIDATION.md)) that tests the pipeline against diseases with known successful drug repurposings:
+
+| Case Study | Disease | Known Drug | Expected Outcome |
+|-----------|---------|------------|------------------|
+| 1 | Pulmonary Arterial Hypertension | Sildenafil (Revatio) | Drug surfaces in top 3, score ≥ 60/100 |
+| 2 | Multiple Myeloma | Thalidomide (Thalomid) | Drug surfaces + contradiction detector fires (efficacy vs safety conflict) |
+| 3 | Polycystic Ovary Syndrome | Metformin | Drug surfaces via insulin resistance pathway targets |
+
+**Why this matters**: If the scoring system reliably recovers drugs that have already been validated by clinical trials and FDA approval, it provides strong evidence that the "60 seconds vs. weeks" claim is not just architecturally plausible but empirically grounded. The full protocol, expected outcomes, and future calibration plans are documented in [VALIDATION.md](./VALIDATION.md).
+
+---
+
 ## Sustainability
 
 ### Open Source Foundation

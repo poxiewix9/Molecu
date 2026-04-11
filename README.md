@@ -98,7 +98,7 @@ The score breakdown is visible on every drug card. Researchers can see exactly *
 | **Contradiction Detection** | DeBERTa NLI model catches logical conflicts between agents |
 | **Graceful Degradation** | Every agent handles API failures without crashing the pipeline |
 | **Rule-Based Safety** | No LLM in safety classification — deterministic rules on FDA data |
-| **78 Passing Tests** | Pytest suite: scoring, safety, models, cache, endpoints, contradiction engine |
+| **120+ Passing Tests** | Backend: pytest (scoring, safety, models, cache, endpoints, NLI, API contracts, orchestrator). Frontend: Vitest (sessions, type contracts) |
 | **CI/CD Pipeline** | GitHub Actions: `pytest` + `next build` on every push and PR |
 | **Docker Ready** | Multi-stage Dockerfiles + `docker-compose up` with health checks |
 
@@ -278,7 +278,7 @@ pharmasynapse/
 │   │   ├── suggest.py              # Autocomplete via Open Targets search
 │   │   ├── grant_abstract.py       # LLM-drafted NIH R21 grant abstract
 │   │   └── related_diseases.py     # Shared protein target disease network
-│   ├── tests/                      # 78 passing tests (pytest)
+│   ├── tests/                      # 100+ passing tests (pytest)
 │   │   ├── test_scoring.py         # Evidence score formula validation
 │   │   ├── test_safety.py          # Rule-based safety classification
 │   │   ├── test_models.py          # Pydantic model contracts
@@ -384,6 +384,7 @@ Comprehensive documentation in the [`docs/`](./docs/) directory:
 | [Testing Strategy](docs/TESTING_STRATEGY.md) | Testing approach and CI pipeline |
 | [Deployment](docs/DEPLOYMENT.md) | Deployment options and Docker setup |
 | [Impact](docs/IMPACT.md) | Social impact and sustainability |
+| [Validation](docs/VALIDATION.md) | Empirical validation against known repurposings |
 | [Code Quality](docs/CODE_QUALITY.md) | Standards and patterns |
 
 ---

@@ -37,8 +37,8 @@ async with httpx.AsyncClient(timeout=15) as client:
     resp = await client.get(url, params=params)
 ```
 
-### Graceful Error Handling
-Every agent wraps external calls:
+### Graceful Error Handling with Structured Logging
+Every agent wraps external calls with context-rich logging:
 ```python
 try:
     result = await external_api_call()
@@ -46,6 +46,15 @@ except Exception as e:
     log.error("Agent error: %s", e)
     result = []  # Never crash the pipeline
 ```
+
+Per-item error handling includes contextual information for debuggability:
+```python
+except Exception as e:
+    log.warning("Skipping malformed LLM item %s: %s", item, e)
+    continue
+```
+
+No bare `except` clauses — every exception handler logs with sufficient context (drug name, trial ID, item data) to diagnose issues in production without reproducing them.
 
 ### Separation of Concerns
 ```
@@ -126,3 +135,18 @@ Dashboard.tsx (orchestrator)
 5. **No LLM in Critical Paths**: Scoring and safety are deterministic
 6. **Source Attribution**: Every data point traces to a database
 7. **Client-Side First**: Sessions, PDF generation, and 3D rendering happen in the browser
+8. **Accessible by Default**: ARIA roles, focus traps, and keyboard navigation on all modals
+9. **Rate-Limited**: Token-bucket rate limiter protects compute-intensive endpoints
+
+---
+
+## Middleware
+
+### Rate Limiting (`backend/middleware.py`)
+Token-bucket rate limiter keyed by client IP:
+- `/api/evaluate/{disease}`: 5 requests/minute (compute-intensive, runs 5 agents + NLI)
+- General `/api/*` endpoints: 20 requests/minute (lightweight cache reads)
+- Returns HTTP 429 with `Retry-After` header on limit breach
+
+### .dockerignore
+Production Docker images exclude test files, CSV datasets, `__pycache__`, and documentation to minimize image size and attack surface.

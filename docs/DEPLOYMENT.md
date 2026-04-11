@@ -74,6 +74,7 @@ All Docker configuration files are included in the repository root:
 - `Dockerfile` — Backend (Python 3.11 + FastAPI)
 - `Dockerfile.frontend` — Frontend (Node 20 + Next.js)
 - `docker-compose.yml` — Full-stack orchestration with health checks
+- `.dockerignore` — Excludes test files, CSV datasets, `__pycache__`, IDE files, and documentation from production images (reduces image size and attack surface)
 
 ### Backend Dockerfile (`Dockerfile`) — Multi-Stage
 
@@ -171,8 +172,8 @@ GitHub Actions workflow (`.github/workflows/ci.yml`) runs on every push to `main
 
 | Job | Runtime | Steps |
 |-----|---------|-------|
-| `backend-tests` | Ubuntu + Python 3.11 | Install deps → `pytest backend/tests/ -v` (78 tests) |
-| `frontend-build` | Ubuntu + Node 20 | `npm ci` → `npm run build` (TypeScript + production build) |
+| `backend-tests` | Ubuntu + Python 3.11 | Install deps → `pytest backend/tests/ -v` (100+ tests: scoring, safety, models, cache, endpoints, NLI, API contracts, orchestrator) |
+| `frontend-build` | Ubuntu + Node 20 | `npm ci` → `npm test` (19 Vitest tests) → `npm run build` (TypeScript + production build) |
 
 Both jobs use dependency caching for fast subsequent runs (~30s backend, ~60s frontend).
 

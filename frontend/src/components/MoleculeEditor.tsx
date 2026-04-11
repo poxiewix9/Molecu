@@ -442,6 +442,30 @@ export default function MoleculeEditor({ drugName, onClose }: Props) {
     { id: "delete", icon: Eraser, tip: "Delete" },
   ];
 
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    closeRef.current?.focus();
+
+    const handleTabTrap = (e: KeyboardEvent) => {
+      if (e.key !== "Tab" || !dialogRef.current) return;
+      const focusable = dialogRef.current.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault(); last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault(); first.focus();
+      }
+    };
+    window.addEventListener("keydown", handleTabTrap);
+    return () => window.removeEventListener("keydown", handleTabTrap);
+  }, []);
+
   return (
     <motion.div
       className="fixed inset-0 z-[100] flex items-center justify-center bg-black/30 backdrop-blur-sm"
@@ -449,14 +473,19 @@ export default function MoleculeEditor({ drugName, onClose }: Props) {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       onClick={onClose}
+      role="presentation"
     >
       <motion.div
+        ref={dialogRef}
         className="relative bg-card rounded-2xl shadow-2xl border border-border w-[90vw] max-w-[820px] h-[80vh] max-h-[640px] flex flex-col overflow-hidden"
         initial={{ scale: 0.95, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.95, opacity: 0 }}
         transition={{ type: "spring", duration: 0.35 }}
         onClick={e => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-label={`3D Molecule Editor: ${drugName}`}
       >
         {/* ── Header ── */}
         <div className="flex items-center justify-between px-5 py-3 border-b border-border">
@@ -469,7 +498,9 @@ export default function MoleculeEditor({ drugName, onClose }: Props) {
             </span>
           </div>
           <button
+            ref={closeRef}
             onClick={onClose}
+            aria-label="Close editor"
             className="ml-3 p-1.5 rounded-lg text-muted hover:text-foreground hover:bg-subtle transition"
           >
             <X size={16} />

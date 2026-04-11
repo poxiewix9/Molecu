@@ -98,6 +98,65 @@ PharmaSynapse does **not** handle Protected Health Information (PHI):
 
 ---
 
+## Rate Limiting (Implemented)
+
+The SSE evaluation endpoint is protected by a token-bucket rate limiter (`backend/middleware.py`) to prevent unbounded resource consumption:
+
+```python
+class RateLimitMiddleware(BaseHTTPMiddleware):
+    """Token-bucket rate limiter keyed by client IP."""
+    # /api/evaluate/{disease}: 5 requests per 60s per IP
+    # All other /api/* endpoints: 20 requests per 60s per IP
+```
+
+Configuration:
+- **Evaluate endpoint**: 5 requests/minute per IP (computationally expensive — runs 5 agents + NLI inference)
+- **General API**: 20 requests/minute per IP (lightweight reads from cache)
+- **Non-API routes**: No rate limiting (health checks, static assets)
+- **429 response**: Returns `Retry-After` header with seconds until next available slot
+
+The rate limiter uses IP-based keying (with `X-Forwarded-For` awareness for reverse proxy deployments). In production with Redis, this would transition to a distributed rate limiter (e.g., `redis-cell` or sliding-window Lua script) shared across worker instances.
+
+---
+
+## API Authentication Model (Planned for Enterprise Tier)
+
+While the core PharmaSynapse tool remains free and unauthenticated (no barriers to researchers), the planned enterprise API tier requires authentication:
+
+```
+┌──────────────────────────────────────────────────────────────────────┐
+│                     AUTHENTICATION ARCHITECTURE                       │
+├──────────────────────────────────────────────────────────────────────┤
+│                                                                      │
+│  Free Tier (Current):                                                │
+│  • No authentication required                                        │
+│  • Rate limited per IP (5 evaluate/min, 20 general/min)             │
+│  • Intended for individual researchers                               │
+│                                                                      │
+│  Enterprise Tier (Planned):                                          │
+│  • API key authentication via X-API-Key header                      │
+│  • Key issued per organization, stored hashed in Redis              │
+│  • Higher rate limits (50 evaluate/min, 200 general/min)            │
+│  • Usage tracking per key (monthly request counts)                  │
+│  • Webhook notifications on quota thresholds                        │
+│                                                                      │
+│  Implementation Sketch:                                              │
+│  1. API keys generated as SHA-256 of org_id + secret + timestamp   │
+│  2. Keys stored as bcrypt hashes in Redis (never plaintext)        │
+│  3. Middleware checks X-API-Key → Redis lookup → rate limit tier    │
+│  4. Missing/invalid key → falls back to free tier limits           │
+│  5. /api/usage endpoint returns current period usage stats          │
+│                                                                      │
+└──────────────────────────────────────────────────────────────────────┘
+```
+
+This design ensures:
+- **Zero friction for researchers** — no login, no API key needed for basic use
+- **Scalable for institutions** — organizations get higher limits and usage tracking
+- **No breaking changes** — enterprise auth is additive, never removes free access
+
+---
+
 ## Threat Model
 
 | Threat | Risk | Mitigation |
@@ -108,3 +167,5 @@ PharmaSynapse does **not** handle Protected Health Information (PHI):
 | LLM prompt injection | Low | User input treated as data in structured prompts |
 | Dependency vulnerabilities | Medium | npm audit, pip safety check |
 | Data exfiltration | N/A | No user data to exfiltrate |
+| Unbounded SSE connections | Medium | Token-bucket rate limiter (5 eval/min per IP) |
+| Open Targets schema evolution | Low | Automated API contract tests in CI validate response shapes |

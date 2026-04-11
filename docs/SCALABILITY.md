@@ -66,8 +66,74 @@ Load Balancer → Backend Instance 1
               → Shared Redis Cache
 ```
 
-### Phase 3: Queue-Based Processing
-For high traffic: decouple request handling from pipeline execution via a message queue.
+#### SSE Connection Routing Across Worker Nodes
+
+The sequential agent pipeline — chosen for SSE UX clarity — becomes a bottleneck at scale. In a multi-worker horizontal deployment, each SSE connection must remain pinned to the worker that initiated the pipeline for that request. The design:
+
+```
+                            ┌────────────────────────────────┐
+                            │   Load Balancer (sticky sessions)│
+                            │   IP-hash or cookie affinity     │
+                            └─────────────┬──────────────────┘
+                                          │
+              ┌───────────────────────────┼───────────────────────────┐
+              ▼                           ▼                           ▼
+     ┌────────────────┐         ┌────────────────┐         ┌────────────────┐
+     │  Worker 1      │         │  Worker 2      │         │  Worker N      │
+     │  SSE pipeline  │         │  SSE pipeline  │         │  SSE pipeline  │
+     │  + local state │         │  + local state │         │  + local state │
+     └───────┬────────┘         └───────┬────────┘         └───────┬────────┘
+             │                          │                          │
+             └──────────────────────────┼──────────────────────────┘
+                                        ▼
+                              ┌──────────────────┐
+                              │   Shared Redis    │
+                              │ (result cache +   │
+                              │  session state)   │
+                              └──────────────────┘
+```
+
+**Key design decisions:**
+
+1. **Sticky sessions via IP-hash**: The load balancer (nginx, Traefik, or Cloud Run) routes all requests from a given client IP to the same worker. This ensures the SSE stream stays connected to the worker executing that pipeline.
+
+2. **Redis-backed ResultCache**: After pipeline completion, results are written to Redis (replacing the in-process `ResultCache`). Subsequent non-SSE requests (export, grant-abstract, related-diseases) can be served by any worker since they read from shared Redis.
+
+3. **SSE reconnection handling**: If a worker dies mid-pipeline, the client's `EventSource` auto-reconnects. The new worker checks Redis for partial results and either resumes from the last completed agent or restarts the pipeline. Each SSE event includes a monotonic sequence ID for resumption.
+
+4. **Graceful shutdown**: Workers drain active SSE connections before shutting down (SIGTERM → stop accepting new connections → wait for active pipelines to complete → exit).
+
+### Phase 3: Queue-Based Processing (Fan-Out/Fan-In with Celery)
+
+For high traffic (>50 concurrent users): decouple request handling from pipeline execution via a message queue.
+
+```
+                    ┌─────────────┐
+                    │  API Server  │  (accepts SSE connections, publishes to queue)
+                    └──────┬──────┘
+                           │ Celery task per pipeline
+                    ┌──────▼──────┐
+                    │ Redis Queue  │
+                    └──────┬──────┘
+           ┌───────────────┼───────────────┐
+           ▼               ▼               ▼
+    ┌──────────────┐ ┌──────────────┐ ┌──────────────┐
+    │ Celery Worker│ │ Celery Worker│ │ Celery Worker│
+    │ (pipeline)   │ │ (pipeline)   │ │ (pipeline)   │
+    └──────┬───────┘ └──────┬───────┘ └──────┬───────┘
+           │               │               │
+           └───────────────┼───────────────┘
+                           ▼
+                    ┌──────────────┐
+                    │ Redis Pub/Sub│  (per-user SSE channel)
+                    └──────┬───────┘
+                           │
+                    ┌──────▼──────┐
+                    │  API Server  │  (subscribes to user channel, streams to SSE)
+                    └─────────────┘
+```
+
+The API server publishes a Celery task with a unique `pipeline_id`. The Celery worker executes each agent sequentially, publishing progress events to a Redis Pub/Sub channel keyed by `pipeline_id`. The API server subscribes to that channel and forwards events to the client's SSE connection. This decouples the SSE connection lifetime from the pipeline execution, allowing any API server instance to stream results from any worker.
 
 ---
 

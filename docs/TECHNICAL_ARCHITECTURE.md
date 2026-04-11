@@ -246,6 +246,20 @@ Dashboard.tsx (main orchestrator, ~600 lines)
 
 ---
 
+## Rate Limiting
+
+The API is protected by a token-bucket rate limiter (`backend/middleware.py`) applied as Starlette middleware:
+
+| Endpoint Pattern | Limit | Window |
+|-----------------|-------|--------|
+| `/api/evaluate/{disease}` | 5 requests | 60 seconds |
+| `/api/*` (other endpoints) | 20 requests | 60 seconds |
+| Non-API routes (`/health`, etc.) | No limit | — |
+
+Keyed by client IP (with `X-Forwarded-For` awareness). Returns HTTP 429 with `Retry-After` header on breach. Configurable via constructor parameters for staging vs production tuning.
+
+---
+
 ## API Documentation (OpenAPI / Swagger)
 
 FastAPI automatically generates OpenAPI 3.0 documentation available at:
@@ -287,9 +301,47 @@ The cache has a configurable max-entry limit (default 50) with FIFO eviction. Fo
 
 ---
 
+## Dual Pipeline Architecture: main.py vs. orchestrator.py
+
+PharmaSynapse contains **two distinct pipelines** that serve different purposes:
+
+### Pipeline 1: Drug Repurposing SSE Pipeline (`main.py`)
+
+The **primary user-facing pipeline** — a sequential async generator in `main.py` that orchestrates 5 agents via SSE streaming. This pipeline:
+- Takes a disease name as input
+- Queries 6 real external APIs (Open Targets, ClinicalTrials.gov, ChEMBL, FDA FAERS, PubMed, PubChem)
+- Returns ranked drug candidates with evidence scores
+- Streams results to the frontend in real-time via Server-Sent Events
+- **Does NOT use LangGraph** — it is a hand-written async generator chosen for fine-grained SSE event control
+
+### Pipeline 2: Molecular Screening Pipeline (`orchestrator.py`)
+
+A **separate experimental pipeline** built with LangGraph for molecular candidate evaluation:
+- Uses LangGraph's `StateGraph` with conditional edges for branching logic (toxicity → fail, clean → evaluate → approve/reject)
+- Evaluates SMILES-format molecular candidates against BACE1 binding affinity (BACE dataset), toxicity (ClinTox dataset), and inter-agent contradiction (DeBERTa NLI)
+- Uses ChromaDB vector store (`memory_store.py`) for RAG-based retrieval of previously failed molecules
+- Operates on local CSV datasets (ZINC subset, ClinTox, BACE binding), not external APIs
+- **LangGraph is essential here**: The conditional routing (after_admet → fail vs evaluate, after_evaluation → fail vs approve) and the stateful `MoleculeState` propagation across nodes are exactly what LangGraph's StateGraph provides over a plain async generator
+
+### Why Two Pipelines?
+
+| Aspect | SSE Pipeline (main.py) | Molecular Pipeline (orchestrator.py) |
+|--------|------------------------|--------------------------------------|
+| Purpose | Disease → drug candidate discovery | Molecular candidate screening |
+| Data sources | 6 external APIs | Local CSV datasets |
+| Architecture | Sequential async generator | LangGraph StateGraph with conditional edges |
+| State | Per-request, ephemeral | MoleculeState TypedDict with agent logs |
+| Memory | ResultCache singleton | ChromaDB vector store (RAG for past failures) |
+| NLI usage | Safety vs efficacy contradiction | Inter-agent claim contradiction |
+| User interface | SSE streaming to frontend | Programmatic (no UI yet) |
+
+The molecular pipeline demonstrates LangGraph's value for complex branching workflows — it would be significantly more verbose without LangGraph's declarative graph construction and conditional edge routing. The SSE pipeline remains a hand-written generator because SSE event emission requires precise control over when and what events are yielded, which is more natural as an async generator than a graph node.
+
+---
+
 ## Architectural Note: memory_store.py
 
-`backend/memory_store.py` contains a ChromaDB-based vector store for failed experiment retrieval (RAG pattern). This was part of the original Phase 5 design for cross-session learning. It is **not currently wired into the pipeline** — the active session strategy uses browser localStorage. The file is retained as scaffolding for the planned Redis caching layer, which would replace it with server-side persistent memory.
+`backend/memory_store.py` contains a ChromaDB-based vector store for failed experiment retrieval (RAG pattern). It is **wired into the LangGraph molecular pipeline** (`orchestrator.py`) where it stores failed molecule SMILES with failure reasons and retrieves past failures to guide the generative agent away from known-bad candidates. It is **not connected to the primary SSE drug repurposing pipeline** — the active user-facing session strategy uses browser localStorage. For production multi-user deployment, this would transition to a Redis-backed store with TTL-based expiration.
 
 ---
 

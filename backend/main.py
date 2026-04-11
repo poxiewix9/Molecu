@@ -21,6 +21,7 @@ import os
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse, JSONResponse
 
+from backend.middleware import RateLimitMiddleware
 from backend.agents.disease_analyst import analyze_disease
 from backend.agents.drug_hunter import hunt_drugs, compute_evidence_score
 from backend.agents.safety_checker import check_safety
@@ -46,6 +47,7 @@ app = FastAPI(title="PharmaSynapse API", version="2.0.0", lifespan=lifespan)
 
 _allowed_origins = os.environ.get("ALLOWED_ORIGINS", "http://localhost:3000").split(",")
 
+app.add_middleware(RateLimitMiddleware, evaluate_limit=5, general_limit=20, window_seconds=60)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=_allowed_origins,

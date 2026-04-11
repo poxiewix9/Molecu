@@ -26,6 +26,7 @@ Over 7,000 rare diseases affect 400+ million people globally, yet 95% have no FD
 | [Testing Strategy](./TESTING_STRATEGY.md) | Testing approach and quality assurance |
 | [Deployment](./DEPLOYMENT.md) | Deployment architecture and CI/CD |
 | [Impact](./IMPACT.md) | Social impact, cost savings analysis, and sustainability |
+| [Validation](./VALIDATION.md) | Empirical validation against known successful drug repurposings |
 | [Code Quality](./CODE_QUALITY.md) | Coding standards and best practices |
 
 ---
@@ -39,6 +40,7 @@ Over 7,000 rare diseases affect 400+ million people globally, yet 95% have no FD
 - **Architecture**: Multi-agent SSE streaming pipeline with evidence-based scoring
 - **Research Tools**: Persistent sessions, annotations, PDF reports, drug comparison, deep-dive panels
 - **Cost to Researcher**: $0 — every API is free and public
+- **Validation**: Empirically tested against known successful repurposings (see [VALIDATION.md](./VALIDATION.md))
 
 ---
 

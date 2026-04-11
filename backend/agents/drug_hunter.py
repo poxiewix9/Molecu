@@ -1,9 +1,13 @@
 """Agent 2: Drug Hunter — searches ClinicalTrials.gov AND ChEMBL for repurposing candidates."""
 
+import logging
+
 from backend.models import DiseaseTarget, DrugCandidate, EvidenceScore
 from backend.services.clinical_trials import search_failed_trials
 from backend.services.chembl import search_drugs_for_targets
 from backend.services.llm import ask_llm_json
+
+log = logging.getLogger(__name__)
 
 
 def compute_evidence_score(
@@ -137,7 +141,8 @@ async def hunt_drugs(
                     )
                     candidates.append(c)
                     seen_drugs.add(name.lower())
-                except Exception:
+                except Exception as e:
+                    log.warning("Skipping malformed LLM item %s: %s", item, e)
                     continue
 
         if not candidates:
