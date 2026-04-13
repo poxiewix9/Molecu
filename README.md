@@ -19,7 +19,7 @@ Meanwhile, pharmaceutical companies have spent **billions** on drugs that passed
 
 The commercial tools that do this cross-referencing (Clarivate, Elsevier, BenchSci) cost **$10,000–$50,000/year per researcher**. A grad student can't afford that. A rare disease foundation can't afford that.
 
-**PharmaSynapse queries the same public databases for free, in 60 seconds, with transparent scoring and full source attribution.**
+**Molecu queries the same public databases for free, in 60 seconds, with transparent scoring and full source attribution.**
 
 ---
 
@@ -216,8 +216,8 @@ Multi-page formatted report with title page, executive summary, per-drug analysi
 
 ```bash
 # Clone
-git clone https://github.com/vedanthchamala/pharmasynapse.git
-cd pharmasynapse
+git clone https://github.com/vedanthchamala/Molecu.git
+cd Molecu
 
 # Backend
 cd backend
@@ -250,7 +250,7 @@ Open **http://localhost:3000** and search for any disease.
 ## Project Structure
 
 ```
-pharmasynapse/
+Molecu/
 ├── README.md
 ├── docs/                           # Comprehensive documentation (12 files)
 │   ├── VISION.md                   # Mission and long-term goals
@@ -334,7 +334,7 @@ pharmasynapse/
 
 ## How AI Is Used (Transparently)
 
-PharmaSynapse uses AI in **two specific, auditable ways**:
+Molecu uses AI in **two specific, auditable ways**:
 
 1. **Google Gemini (LLM)** — Synthesizes raw data into plain-English explanations: *why* a drug might work, what the mechanism is, what the rationale for repurposing is. The LLM reads real data (trial records, abstracts, target associations) and summarizes it. If Gemini is unavailable, the pipeline still works with raw data.
 
@@ -349,12 +349,12 @@ PharmaSynapse uses AI in **two specific, auditable ways**:
 
 ## The Cost Comparison
 
-| Tool | Annual Cost | What PharmaSynapse Replaces |
+| Tool | Annual Cost | What Molecu Replaces |
 |------|------------|----------------------------|
 | Clarivate Cortellis | ~$30,000/seat | Drug pipeline cross-referencing |
 | Elsevier Pathway Studio | ~$15,000/seat | Target-drug-disease mapping |
 | BenchSci | ~$20,000/seat | Literature + antibody search |
-| **PharmaSynapse** | **$0** | **All of the above, from the same public databases** |
+| **Molecu** | **$0** | **All of the above, from the same public databases** |
 
 Every API we query is free. The pipeline runs on a laptop. A college researcher with no budget gets the same cross-database analysis that costs pharma companies tens of thousands per year.
 
