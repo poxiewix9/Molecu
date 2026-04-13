@@ -1,3 +1,5 @@
+
+
 # PharmaSynapse
 
 **An AI-powered multi-agent drug repurposing engine that cross-references 6 biomedical databases in real-time to identify abandoned clinical trial drugs that could treat rare diseases — for free.**
@@ -414,3 +416,9 @@ MIT License — free for academic, research, and commercial use.
 - **PubChem** — molecular structure data
 - **Google** — Gemini API for natural language synthesis
 - Every rare disease patient advocate working for a cure
+
+
+
+https://github.com/user-attachments/assets/dd884dc1-e1b2-409c-9908-c4d15069424e
+
+
