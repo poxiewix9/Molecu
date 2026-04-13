@@ -388,16 +388,6 @@ Comprehensive documentation in the [`docs/`](./docs/) directory:
 | [Impact](docs/IMPACT.md) | Social impact and sustainability |
 | [Validation](docs/VALIDATION.md) | Empirical validation against known repurposings |
 | [Code Quality](docs/CODE_QUALITY.md) | Standards and patterns |
-
----
-
-## Team
-
-| Member | Role | Ownership |
-|--------|------|-----------|
-| **Vedanth Chamala** | Full-stack lead | Backend pipeline, API design, agent architecture |
-| **Keshav Singh** | Frontend & AI integration | Next.js UI, 3D visualization, LLM integration, research workbench |
-
 ---
 
 ## License
