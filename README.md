@@ -1,6 +1,6 @@
 
 
-# PharmaSynapse
+# Molecu
 
 **An AI-powered multi-agent drug repurposing engine that cross-references 6 biomedical databases in real-time to identify abandoned clinical trial drugs that could treat rare diseases — for free.**
 
